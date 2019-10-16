@@ -43,6 +43,16 @@ docker-compose logs --follow --tail=100 api
 docker-compose restart api
 ```
 
+## stop/show container
+
+```bash
+# Stops containers
+docker-compose down
+
+# Show all containers (default shows just running)
+docker ps --all
+```
+
 ## Database management
 
 It's possible to explore database state by Adminer on http://localhost:8080. Use credentials configured for mysql service.
