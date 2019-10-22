@@ -93,6 +93,11 @@ async function removeGame({ gameId }) {
   await db.Game.destroy({ where: { id: gameId } });
 }
 
+async function deleteGame(gameId) {
+  await db.Goal.destroy({ where: { gameId: gameId } });
+  await db.Game.destroy({ where: { id: gameId } });
+}
+
 async function joinGame({ userId, gameId, team, position }) {
   const user = await db.User.findById(userId);
   const game = await db.Game.findById(gameId);
@@ -156,6 +161,7 @@ module.exports = {
   getGame,
   addGame,
   removeGame,
+  deleteGame,
   joinGame,
   leftGame,
   startGame,

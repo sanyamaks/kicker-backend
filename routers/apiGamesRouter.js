@@ -21,6 +21,16 @@ apiGamesRouter
     await gamesModule.removeGame({ userId, gameId });
     ctx.body = { success: true };
   })
+  .delete("/api/games/:gameId", async ctx => {
+    try {
+      const { gameId } = ctx.params;
+      await gamesModule.deleteGame(gameId);
+      ctx.body = { success: true };
+    } catch (err) {
+      ctx.response.status = 400;
+      ctx.body = { error: "что-то пошло не так" };
+    }
+  })
   .post("/api/game/join", async ctx => {
     // const { id: userId } = ctx.state.user;
     // const { gameId, team } = ctx.request.body;
