@@ -94,6 +94,7 @@ async function removeGame({ gameId }) {
 }
 
 async function deleteGame(gameId) {
+  await db.GamePlayer.destroy({ where: { gameId: gameId } });
   await db.Goal.destroy({ where: { gameId: gameId } });
   await db.Game.destroy({ where: { id: gameId } });
 }
