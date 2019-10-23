@@ -43,6 +43,22 @@ docker-compose logs --follow --tail=100 api
 docker-compose restart api
 ```
 
+## Troubleshooting
+
+```bash
+# Stops containers and removes containers, networks, volumes, and images created by up.
+docker-compose down
+
+# Show all containers (default shows just running)
+docker ps --all
+
+# Remove one or more containers
+docker rm [OPTIONS] CONTAINER [CONTAINER...]
+
+# Kill one or more running containers
+docker kill [OPTIONS] CONTAINER [CONTAINER...]
+```
+
 ## Database management
 
 It's possible to explore database state by Adminer on http://localhost:8080. Use credentials configured for mysql service.
