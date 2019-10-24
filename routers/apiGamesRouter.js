@@ -27,7 +27,7 @@ apiGamesRouter
       await gamesModule.deleteGame(gameId);
       ctx.body = { success: true };
     } catch (err) {
-      ctx.throw(400, "something went wrong");
+      ctx.throw(400);
     }
   })
   .post("/api/game/join", async ctx => {
