@@ -7,9 +7,7 @@ var config = configs[env];
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.sequelize.query(
-      `ALTER DATABASE ${
-        config.database
-      } CHARACTER SET utf8 COLLATE utf8_unicode_ci`
+      `ALTER DATABASE ${config.database} CHARACTER SET utf8 COLLATE utf8_unicode_ci`
     );
     await queryInterface.sequelize.query(
       "ALTER TABLE Users CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci"
