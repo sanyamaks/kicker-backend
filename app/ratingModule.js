@@ -2,92 +2,66 @@
 // const db = require("../models");
 const elo = require("../services/elo");
 
+const TEAM_A = 0;
+const TEAM_B = 1;
+
 async function addGame(game) {
-  const gameId = game.id;
-  const users = game["Users"].map(el => el);
-  const usersAId = users
-    .filter(user => user.GamePlayer.team === 0)
-    .map(el => el.id);
-  const usersBId = users
-    .filter(user => user.GamePlayer.team === 1)
-    .map(el => el.id);
-
-  const usersARating = users
-    .filter(user => user.GamePlayer.team === 0)
-    .map(el => el.rating);
-  const usersBRating = users
-    .filter(user => user.GamePlayer.team === 1)
-    .map(el => el.rating);
-
-  const goals = game["Goals"].map(el => [
-    {
-      UserId: el["UserId"],
-      ownGoal: el["ownGoal"]
-    }
-  ]);
-
-  const gameRating = await distributeUserPoints(
-    elo.elo(usersARating, usersBRating, isVictoryTeamA(goals, usersAId, usersBId)),
-    usersAId,
-    usersBId
-  );
-  const [userA1Id, userA2Id] = usersAId;
-  const [userB1Id, userB2Id] = usersBId;
-  const [userA1Rating, userA2Rating] = usersARating;
-  const [userB1Rating, userB2Rating] = usersBRating;
-  const { userA1Points, userA2Points, userB1Points, userB2Points } = gameRating;
-
-  return {
-    gameId,
-    userA1Id,
-    userA2Id,
-    userB1Id,
-    userB2Id,
-    userA1Rating,
-    userA2Rating,
-    userB1Rating,
-    userB2Rating,
-    userA1Points,
-    userA2Points,
-    userB1Points,
-    userB2Points
+  const usersByTeam = {
+    [TEAM_A]: game.Users.filter(user => user.GamePlayer.team === TEAM_A),
+    [TEAM_B]: game.Users.filter(user => user.GamePlayer.team === TEAM_B)
+  };
+  const usersIdsByTeam = {
+    [TEAM_A]: usersByTeam[TEAM_A].map(user => user.id),
+    [TEAM_B]: usersByTeam[TEAM_B].map(user => user.id)
   };
 
-  function distributeUserPoints(usersPoints, usersAId, usersBId) {
-    const { teamAPoints, teamBPoints } = usersPoints;
-    const numberUsersA = usersAId.length;
-    const numberUsersB = usersBId.length;
+  const scoreByTeam = {
+    [TEAM_A]: game.Goals.filter(
+      goal =>
+        (usersIdsByTeam[TEAM_A].includes(goal.UserId) && !goal.ownGoal) ||
+        (!usersIdsByTeam[TEAM_A].includes(goal.UserId) && goal.ownGoal)
+    ),
+    [TEAM_B]: game.Goals.filter(
+      goal =>
+        (usersIdsByTeam[TEAM_B].includes(goal.UserId) && !goal.ownGoal) ||
+        (!usersIdsByTeam[TEAM_B].includes(goal.UserId) && goal.ownGoal)
+    )
+  };
 
-    const userA1Points = (teamAPoints / numberUsersA).toFixed(0);
-    const userA2Points = (teamAPoints / numberUsersA).toFixed(0);
-    const userB1Points = (teamBPoints / numberUsersB).toFixed(0);
-    const userB2Points = (teamBPoints / numberUsersB).toFixed(0);
+  const ratingByTeam = {
+    [TEAM_A]: usersByTeam[TEAM_A][0].rating + usersByTeam[TEAM_A][1].rating,
+    [TEAM_B]: usersByTeam[TEAM_B][0].rating + usersByTeam[TEAM_B][1].rating
+  };
 
-    return { userA1Points, userA2Points, userB1Points, userB2Points };
-  }
+  const {
+    player1Points: eloPlayer1Points,
+    player2Points: eloPlayer2Points
+  } = elo.calculatePoints({
+    player1: {
+      rating: ratingByTeam[TEAM_A],
+      score: scoreByTeam[TEAM_A]
+    },
+    player2: {
+      rating: ratingByTeam[TEAM_B],
+      score: scoreByTeam[TEAM_B]
+    }
+  });
 
-  function isVictoryTeamA(goals, usersAId, usersBId) {
-    const [userA1Id, userA2Id] = usersAId;
-    const [userB1Id, userB2Id] = usersBId;
-
-    let scoredTeamA = goals.filter(el => {
-        const UserId = el[0]["UserId"];
-        const ownGoal = el[0]["ownGoal"];
-        return (
-          ((UserId === userA1Id || UserId === userA2Id) && !ownGoal) ||
-          ((UserId === userB1Id || UserId === userB2Id) && ownGoal)
-        );
-      }),
-      scoredTeamB = goals.filter(el => {
-        const UserId = el[0]["UserId"];
-        const ownGoal = el[0]["ownGoal"];
-        return (
-          ((UserId === userB1Id || UserId === userB2Id) && !ownGoal) ||
-          ((UserId === userA1Id || UserId === userA2Id) && ownGoal)
-        );
-      });
-    return scoredTeamA > scoredTeamB;
-  }
+  return {
+    gameId: game.id,
+    userA1Id: usersByTeam[TEAM_A][0].id,
+    userA2Id: usersByTeam[TEAM_A][1].id,
+    userB1Id: usersByTeam[TEAM_B][0].id,
+    userB2Id: usersByTeam[TEAM_B][1].id,
+    userA1Rating: scoreByTeam[TEAM_A][0].rating,
+    userA2Rating: scoreByTeam[TEAM_A][1].rating,
+    userB1Rating: scoreByTeam[TEAM_B][0].rating,
+    userB2Rating: scoreByTeam[TEAM_B][1].rating,
+    userA1Points: eloPlayer1Points / 2,
+    userA2Points: eloPlayer1Points / 2,
+    userB1Points: eloPlayer2Points / 2,
+    userB2Points: eloPlayer2Points / 2
+  };
 }
 
 module.exports = {
