@@ -12,6 +12,11 @@ apiUsersRouter
     const users = await usersModule.getUsers();
     ctx.body = { users };
   })
+  .post("/api/users/:userId", async ctx => {
+    const { userId } = ctx.params;
+    const user = await usersModule.updateUser(userId, ctx.request.body);
+    ctx.body = { user };
+  })
   .post("/404fest/api/user", async ctx => {
     const { externalId, name } = ctx.request.body;
     const user = await usersModule.createUserByExternalId(externalId, { name });
