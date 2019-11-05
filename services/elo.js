@@ -3,17 +3,16 @@ function calculatePoints({ player1, player2 }) {
   // https://habr.com/ru/post/308920/
   const MAXIMUM_POINTS = 16;
 
-  const actualPoints = player1.score > player2.score ? 1 : 0;
+  const player1ActualResult = player1.score > player2.score ? 1 : 0;
 
-  const expectedPoints = (
-    1 /
-    (1 + 10 ** ((player2.rating - player1.rating) / 400))
-  ).toFixed(2);
+  const player1ExpectedResult =
+    Math.round(
+      (1 / (1 + 10 ** ((player2.rating - player1.rating) / 400))) * 100
+    ) / 100;
 
-  const delta = MAXIMUM_POINTS * (actualPoints - expectedPoints);
-
-  const player1Points = delta;
-  const player2Points = +-delta;
+  const player1Points =
+    MAXIMUM_POINTS * (player1ActualResult - player1ExpectedResult);
+  const player2Points = -player1Points;
 
   return {
     player1Points,
