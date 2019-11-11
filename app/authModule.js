@@ -25,8 +25,10 @@ function initPassportStrategies() {
       },
       async function(accessToken, refreshToken, profile, done) {
         try {
-          const email = profile.emails.find(item => item.type === "account")
-            .value;
+          const { value: email } = profile.emails.find(
+            item => item.type.toLowerCase() === "account"
+          );
+
           const params = {
             email,
             photoUrl: profile.image && profile.image.url,
