@@ -1,5 +1,6 @@
 const passport = require("koa-passport");
 const GoogleStrategy = require("passport-google-auth").Strategy;
+const usersModule = require("../app/usersModule");
 const db = require("../models");
 
 function initPassportStrategies() {
@@ -64,10 +65,23 @@ function authenticatedOnly(ctx, next) {
   if (ctx.isAuthenticated()) {
     return next();
   }
-  ctx.status = 401;
+  ctx.throw(401);
+}
+
+async function adminOnly(ctx, next) {
+  if (ctx.isAuthenticated()) {
+    const isAdmin = await usersModule.isAdmin(ctx.state.user.id);
+    if (isAdmin) {
+      return next();
+    }
+    ctx.throw(403);
+  } else {
+    ctx.throw(401);
+  }
 }
 
 module.exports = {
   initPassportStrategies,
-  authenticatedOnly
+  authenticatedOnly,
+  adminOnly
 };
