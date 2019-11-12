@@ -25,7 +25,7 @@ const server = new Koa();
 render(server, {
   root: path.join(__dirname, "views"),
   layout: false,
-  viewExt: "html",
+  viewExt: "ejs",
   cache: false,
   debug: false
 });
