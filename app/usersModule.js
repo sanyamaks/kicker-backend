@@ -5,17 +5,22 @@ async function getUsers() {
   return users;
 }
 
-async function createUserByExternalId(externalId, payload) {
-  const existingUser = await db.User.findOne({ where: { externalId } });
-  if (existingUser) {
-    return existingUser;
-  }
+async function isAdmin(userId) {
+  const user = await db.User.findById(userId);
+  // @todo: Create user access permissions system
+  return user.email === process.env.ADMIN_EMAIL;
+}
 
-  const user = await db.User.create({ externalId, ...payload });
-  return await db.User.findById(user.id);
+async function updateUser(userId, payload) {
+  const user = await db.User.findById(userId);
+  if (user) {
+    await user.update(payload, { fields: ["name", "photoUrl"] });
+  }
+  return user;
 }
 
 module.exports = {
   getUsers,
-  createUserByExternalId
+  updateUser,
+  isAdmin
 };

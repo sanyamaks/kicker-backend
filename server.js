@@ -13,6 +13,7 @@ const cors = require("koa-cors");
 const render = require("koa-ejs");
 
 const authRouter = require("./routers/authRouter");
+const apiGameRatingRouter = require("./routers/apiGameRatingRouter");
 const apiUsersRouter = require("./routers/apiUsersRouter");
 const apiGamesRouter = require("./routers/apiGamesRouter");
 const apiStatsRouter = require("./routers/apiStatsRouter");
@@ -24,7 +25,7 @@ const server = new Koa();
 render(server, {
   root: path.join(__dirname, "views"),
   layout: false,
-  viewExt: "html",
+  viewExt: "ejs",
   cache: false,
   debug: false
 });
@@ -37,6 +38,7 @@ server.use(passport.session());
 server.use(bodyParser());
 
 server.use(authRouter.routes());
+server.use(apiGameRatingRouter.routes());
 server.use(apiUsersRouter.routes());
 server.use(apiGamesRouter.routes());
 server.use(apiStatsRouter.routes());
