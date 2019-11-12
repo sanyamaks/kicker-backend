@@ -11,18 +11,7 @@ async function isAdmin(userId) {
   return user.email === process.env.ADMIN_EMAIL;
 }
 
-async function createUserByExternalId(externalId, payload) {
-  const existingUser = await db.User.findOne({ where: { externalId } });
-  if (existingUser) {
-    return existingUser;
-  }
-
-  const user = await db.User.create({ externalId, ...payload });
-  return await db.User.findById(user.id);
-}
-
 module.exports = {
   getUsers,
-  isAdmin,
-  createUserByExternalId
+  isAdmin
 };
