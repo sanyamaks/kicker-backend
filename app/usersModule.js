@@ -14,7 +14,7 @@ async function isAdmin(userId) {
 async function updateUser(userId, payload) {
   const user = await db.User.findById(userId);
   if (user) {
-    await user.update(payload);
+    await user.update(payload, { fields: ["name", "photoUrl"] });
   }
   return user;
 }
