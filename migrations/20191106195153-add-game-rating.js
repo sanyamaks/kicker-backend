@@ -2,7 +2,6 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    console.log(Sequelize.INTEGER)
     return queryInterface.createTable("GameRatings", {
       id: {
         allowNull: false,
