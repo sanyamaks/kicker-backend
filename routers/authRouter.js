@@ -14,13 +14,18 @@ authRouter.get(
 
 authRouter.get("/auth/google/callback", ctx => {
   return passport.authenticate("google", (err, user) => {
-    if (user === false) {
-      ctx.throw(401);
-    } else {
+    if (user) {
       ctx.login(user);
-      ctx.redirect("/app");
     }
+    ctx.redirect("/auth/google/result");
   })(ctx);
+});
+
+authRouter.get("/auth/google/result", ctx => {
+  return ctx.render("auth-google-result", {
+    isAuthenticated: ctx.isAuthenticated(),
+    referrer: process.env.GOOGLE_AUTH_REFERRER
+  });
 });
 
 authRouter.post("/auth/logout", ctx => {
